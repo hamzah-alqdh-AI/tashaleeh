@@ -32,9 +32,13 @@ def create_models_table(connection):
 def seed_makes(connection):
     makes = [("Toyota",), ("Lexus",), ("Nissan",), ("Hyundai",)]
     connection.executemany(
-        "INSERT OR IGNORE INTO makes (name) VALUES (?)",
-        makes,
-    )
+    """
+    INSERT INTO makes (name)
+    VALUES (?)
+    ON CONFLICT (name) DO NOTHING
+    """,
+    makes,
+)
 
 
 def seed_models(connection):
@@ -42,18 +46,20 @@ def seed_models(connection):
         ("Toyota", "Camry"),
         ("Toyota", "Land Cruiser"),
         ("Toyota", "Hilux"),
+        ("Toyota", "Corolla"),
         ("Lexus", "LX"),
         ("Lexus", "ES"),
         ("Nissan", "Patrol"),
         ("Hyundai", "Sonata"),
     ]
     connection.executemany(
-        """
-        INSERT OR IGNORE INTO models (make_id, name)
-        VALUES ((SELECT id FROM makes WHERE name = ?), ?)
-        """,
-        models,
-    )
+    """
+    INSERT INTO models (make_id, name)
+    VALUES ((SELECT id FROM makes WHERE name = ?), ?)
+    ON CONFLICT (make_id, name) DO NOTHING
+    """,
+    models,
+)
 
 
 def fetch_all_makes():
