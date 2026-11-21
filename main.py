@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from database import fetch_all_makes
 
 app = FastAPI()
 
@@ -9,5 +10,4 @@ def list_parts():
 
 @app.get("/makes")
 def list_makes():
-    makes = ["toyota", "hyundai", "honda"]
-    return makes
+    return fetch_all_makes()
