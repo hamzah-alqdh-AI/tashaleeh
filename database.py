@@ -86,7 +86,7 @@ def fetch_models_by_make(make_id):
         ).fetchall()
     return [{"id": model_id, "name": model_name} for model_id, model_name in rows]
 
-def main():
+def initialize_database():
     with closing(get_connection()) as connection:
         create_makes_table(connection)
         create_models_table(connection)
@@ -105,4 +105,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    initialize_database()
