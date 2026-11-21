@@ -1,4 +1,5 @@
 import sqlite3
+from contextlib import closing
 
 DATABASE_PATH = "tashaleeh.db"
 
@@ -63,47 +64,44 @@ def seed_models(connection):
 
 
 def fetch_all_makes():
-    connection = get_connection()
-    rows = connection.execute(
-        """
-        SELECT id, name 
-        FROM makes
-        ORDER BY name
-        """
+    with closing(get_connection()) as connection:
+        rows = connection.execute(
+            """
+            SELECT id, name
+            FROM makes
+            ORDER BY name
+            """
         ).fetchall()
-    connection.close()
     return [{"id": make_id, "name": make_name} for make_id, make_name in rows]
 
 def fetch_models_by_make(make_id):
-    connection = get_connection()
-    rows = connection.execute(
-        """
-        SELECT id, name FROM models
-        WHERE make_id = ?
-        ORDER BY name
-        """,
-        (make_id,),
-    ).fetchall()
-    connection.close()
+    with closing(get_connection()) as connection:
+        rows = connection.execute(
+            """
+            SELECT id, name FROM models
+            WHERE make_id = ?
+            ORDER BY name
+            """,
+            (make_id,),
+        ).fetchall()
     return [{"id": model_id, "name": model_name} for model_id, model_name in rows]
 
 def main():
-    connection = get_connection()
-    create_makes_table(connection)
-    create_models_table(connection)
-    seed_makes(connection)
-    seed_models(connection)
-    connection.commit()
+    with closing(get_connection()) as connection:
+        create_makes_table(connection)
+        create_models_table(connection)
+        seed_makes(connection)
+        seed_models(connection)
+        connection.commit()
 
-    rows = connection.execute("""
-        SELECT models.id, makes.name, models.name
-        FROM models
-        JOIN makes ON makes.id = models.make_id
-    """)
-    for row in rows:
-        print(row)
+        rows = connection.execute("""
+            SELECT models.id, makes.name, models.name
+            FROM models
+            JOIN makes ON makes.id = models.make_id
+        """)
+        for row in rows:
+            print(row)
 
-    connection.close()
 
 
 if __name__ == "__main__":
